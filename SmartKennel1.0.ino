@@ -59,18 +59,19 @@ int timingMatrix[5][4];
 float refDistance = 0;
 bool b=true;
 
-void timeShow(TM1637Display display,int hh,int mm,int fps,int z){
-  int* ptz=&z;
-  if ((z>=0)&&(z<500)) {
-    display.showNumberDecEx((hh*100+mm), 0b00100000);
-    *ptz=(*ptz)+fps;
-  } else if (z>499) {
-    display.showNumberDecEx((hh*100+mm), 0b00000000);
-    *ptz=-500;
-  } else {
-    display.showNumberDecEx((hh*100+mm), 0b00000000);
-    *ptz=(*ptz)+fps;
-  };
+void timeShow(TM1637Display display, int hh, int mm, int fps,int e) {
+    static int z = e; // Static variable to persist the state across function calls
+    int time = hh * 100 + mm; // Calculate the time in a format suitable for display
+    if (z >= 0 && z < 500) {
+        display.showNumberDecEx(time, 0b01000000); // Display time with colon
+        z += fps;
+    } else if (z >= 500) {
+        display.showNumberDecEx(time, 0); // Display time without colon
+        z -= 1000; // Reset z to handle the blinking cycle
+    } else { // In case of any unexpected z value, reset it and display time without colon
+        display.showNumberDecEx(time, 0);
+        z += fps;
+    }
 }
 
 void brightnessConfig(int bright,int brpin,int brightConf,int bPlus,int bMoins,int bci,bool b,TM1637Display display){
